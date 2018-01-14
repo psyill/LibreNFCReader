@@ -107,6 +107,19 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
             );
         }
 
+        String temp = byteToHex(tag_data_raw[26]);
+        int index_trend = Integer.parseInt(temp,16);
+        temp = byteToHex(tag_data_raw[27]);
+        int index_history = Integer.parseInt(temp,16);
+        temp = bytesToHex(new byte[]{tag_data_raw[317], tag_data_raw[316]});
+        final int sensor_time = Integer.parseInt(temp, 16);
+        final int tag_lifetime_min_left = 14 * 24 * 60 - sensor_time;
+
+        Log.i("MainActivity", Integer.toString(index_trend));
+        Log.i("MainActivity", Integer.toString(index_history));
+        Log.i("MainActivity", Integer.toString(sensor_time / 60 / 24));
+        Log.i("MainActivity", Integer.toString(tag_lifetime_min_left / 60 / 24));
+
         return null;
     }
 }
