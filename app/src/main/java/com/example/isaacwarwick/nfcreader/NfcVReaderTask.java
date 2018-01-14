@@ -13,8 +13,7 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
 
     private Context mCon;
 
-    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
-
+    final protected static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     private final int MAX_SENSOR_BYTES = 1952;
     private final int MAX_BLOCK_SIZE = 8;
     private final int MAX_SENSOR_BLOCKS = MAX_SENSOR_BYTES / MAX_BLOCK_SIZE;
@@ -29,8 +28,8 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
         char[] hexChars = new char[bytes.length * 2];
         for ( int j = 0; j < bytes.length; j++ ) {
             int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
         }
         return new String(hexChars);
     }
@@ -39,8 +38,8 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
         char[] hexChars = new char[2];
 
         int v = byte_ & 0xFF;
-        hexChars[0] = hexArray[v >>> 4];
-        hexChars[1] = hexArray[v & 0x0F];
+        hexChars[0] = HEX_ARRAY[v >>> 4];
+        hexChars[1] = HEX_ARRAY[v & 0x0F];
 
         return new String(hexChars);
     }
@@ -85,6 +84,7 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
                 for (int j = 0; j < MAX_BLOCK_SIZE; j++) {
                     tag_data_raw[i * MAX_BLOCK_SIZE + j] = oneBlock[j];
                 }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
