@@ -10,12 +10,13 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.example.isaacwarwick.nfcreader.BytesToHex.*;
+
 public class NfcVReaderTask extends AsyncTask<Tag, Void, byte[]> {
 
     private Context mCon;
 
-    final protected static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-    private final int MAX_SENSOR_BYTES = 1952;
+    private final int MAX_SENSOR_BYTES = 360;
     private final int MAX_BLOCK_SIZE = 8;
     private final int MAX_SENSOR_BLOCKS = MAX_SENSOR_BYTES / MAX_BLOCK_SIZE;
 
@@ -25,25 +26,6 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, byte[]> {
         mCon = con;
     }
 
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-
-    public static String byteToHex(byte byte_) {
-        char[] hexChars = new char[2];
-
-        int v = byte_ & 0xFF;
-        hexChars[0] = HEX_ARRAY[v >>> 4];
-        hexChars[1] = HEX_ARRAY[v & 0x0F];
-
-        return new String(hexChars);
-    }
 
     @Override
     protected byte[] doInBackground(Tag... params) {
@@ -106,14 +88,14 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, byte[]> {
     protected void onPostExecute(byte[] tag_data_raw) {
         super.onPostExecute(tag_data_raw);
 
-        /*for (int i = 0; i < MAX_SENSOR_BYTES; i += MAX_BLOCK_SIZE) {
+        for (int i = 0; i < MAX_SENSOR_BYTES; i += MAX_BLOCK_SIZE) {
             Log.i("MainActivity", "[" + Integer.toString(i / MAX_BLOCK_SIZE, 16) + "] : "
                     + byteToHex(tag_data_raw[i]) + byteToHex(tag_data_raw[i+1])
                     + byteToHex(tag_data_raw[i+2]) + byteToHex(tag_data_raw[i+3])
                     + byteToHex(tag_data_raw[i+4]) + byteToHex(tag_data_raw[i+5])
                     + byteToHex(tag_data_raw[i+6]) + byteToHex(tag_data_raw[i+7])
             );
-        }*/
+        }
 
         String temp = byteToHex(tag_data_raw[26]);
         int index_trend = Integer.parseInt(temp,16);
@@ -125,7 +107,8 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, byte[]> {
 
         Log.i("MainActivity", Integer.toString(index_trend));
         Log.i("MainActivity", Integer.toString(index_history));
-        Log.i("MainActivity", Integer.toString(sensor_time / 60 / 24));
-        Log.i("MainActivity", Integer.toString(tag_lifetime_min_left / 60 / 24));
+        Log.i("MainActivity", Integer.toString(sensor_time));
+        Log.i("MainActivity", Integer.toString(tag_lifetime_min_left));
     }
 }
+
