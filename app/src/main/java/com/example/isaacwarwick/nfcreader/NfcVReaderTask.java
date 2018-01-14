@@ -6,10 +6,11 @@ import android.nfc.tech.NfcV;
 import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.util.Log;
+
 import java.io.IOException;
 import java.util.Arrays;
 
-public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
+public class NfcVReaderTask extends AsyncTask<Tag, Void, byte[]> {
 
     private Context mCon;
 
@@ -45,7 +46,7 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
     }
 
     @Override
-    protected String doInBackground(Tag... params) {
+    protected byte[] doInBackground(Tag... params) {
         Vibrator vibrator = (Vibrator) mCon.getSystemService(mCon.VIBRATOR_SERVICE);
         vibrator.vibrate(200);
 
@@ -98,14 +99,21 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
 
         vibrator.vibrate(500);
 
-        for (int i = 0; i < MAX_SENSOR_BYTES; i += MAX_BLOCK_SIZE) {
+        return tag_data_raw;
+    }
+
+    @Override
+    protected void onPostExecute(byte[] tag_data_raw) {
+        super.onPostExecute(tag_data_raw);
+
+        /*for (int i = 0; i < MAX_SENSOR_BYTES; i += MAX_BLOCK_SIZE) {
             Log.i("MainActivity", "[" + Integer.toString(i / MAX_BLOCK_SIZE, 16) + "] : "
                     + byteToHex(tag_data_raw[i]) + byteToHex(tag_data_raw[i+1])
                     + byteToHex(tag_data_raw[i+2]) + byteToHex(tag_data_raw[i+3])
                     + byteToHex(tag_data_raw[i+4]) + byteToHex(tag_data_raw[i+5])
                     + byteToHex(tag_data_raw[i+6]) + byteToHex(tag_data_raw[i+7])
             );
-        }
+        }*/
 
         String temp = byteToHex(tag_data_raw[26]);
         int index_trend = Integer.parseInt(temp,16);
@@ -119,7 +127,5 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
         Log.i("MainActivity", Integer.toString(index_history));
         Log.i("MainActivity", Integer.toString(sensor_time / 60 / 24));
         Log.i("MainActivity", Integer.toString(tag_lifetime_min_left / 60 / 24));
-
-        return null;
     }
 }
