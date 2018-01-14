@@ -16,7 +16,8 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
     final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     private final int MAX_SENSOR_BYTES = 1952;
-    private final int MAX_SENSOR_BLOCKS = MAX_SENSOR_BYTES / 8;
+    private final int MAX_BLOCK_SIZE = 8;
+    private final int MAX_SENSOR_BLOCKS = MAX_SENSOR_BYTES / MAX_BLOCK_SIZE;
 
     private byte[] tag_data_raw = new byte[MAX_SENSOR_BYTES];
 
@@ -47,11 +48,11 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
     @Override
     protected String doInBackground(Tag... params) {
         Vibrator vibrator = (Vibrator) mCon.getSystemService(mCon.VIBRATOR_SERVICE);
-        vibrator.vibrate(500);
+        vibrator.vibrate(200);
 
         byte[] cmd;
         int offset = 2;
-        byte[] oneBlock = new byte[9];
+        byte[] oneBlock = new byte[MAX_BLOCK_SIZE];
 
         Tag tag = params[0];
         final byte[] uid = tag.getId();
@@ -81,14 +82,9 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
 
                 oneBlock = Arrays.copyOfRange(oneBlock, offset, oneBlock.length);
 
-                tag_data_raw[i * 8 + 0] = oneBlock[0];
-                tag_data_raw[i * 8 + 1] = oneBlock[1];
-                tag_data_raw[i * 8 + 2] = oneBlock[2];
-                tag_data_raw[i * 8 + 3] = oneBlock[3];
-                tag_data_raw[i * 8 + 4] = oneBlock[4];
-                tag_data_raw[i * 8 + 5] = oneBlock[5];
-                tag_data_raw[i * 8 + 6] = oneBlock[6];
-                tag_data_raw[i * 8 + 7] = oneBlock[7];
+                for (int j = 0; j < MAX_BLOCK_SIZE; j++) {
+                    tag_data_raw[i * MAX_BLOCK_SIZE + j] = oneBlock[j];
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,8 +96,15 @@ public class NfcVReaderTask extends AsyncTask<Tag, Void, String> {
             }
         }
 
-        for (int i = 0; i < MAX_SENSOR_BYTES; i++) {
-            Log.i("MainActivity", i + " : " + byteToHex(tag_data_raw[i]));
+        vibrator.vibrate(500);
+
+        for (int i = 0; i < MAX_SENSOR_BYTES; i += MAX_BLOCK_SIZE) {
+            Log.i("MainActivity", "[" + Integer.toString(i / MAX_BLOCK_SIZE, 16) + "] : "
+                    + byteToHex(tag_data_raw[i]) + byteToHex(tag_data_raw[i+1])
+                    + byteToHex(tag_data_raw[i+2]) + byteToHex(tag_data_raw[i+3])
+                    + byteToHex(tag_data_raw[i+4]) + byteToHex(tag_data_raw[i+5])
+                    + byteToHex(tag_data_raw[i+6]) + byteToHex(tag_data_raw[i+7])
+            );
         }
 
         return null;
